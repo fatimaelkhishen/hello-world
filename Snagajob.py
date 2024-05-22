@@ -13,7 +13,7 @@ def get_job_links():
         url = f"https://www.snagajob.com/search?w=america&radius=20&page={p}"
         
         driver.get(url)
-        time.sleep(2)
+        time.sleep(1)
         soup = BeautifulSoup(driver.page_source, 'html.parser')
         job_cards = soup.find_all("job-card")
         for job_card in job_cards:
@@ -28,7 +28,7 @@ def get_job_links():
 
 def construct_job(driver, job_link):
     driver.get(job_link)
-    time.sleep(4)
+    time.sleep(1)
     try:
         read_more_button = driver.find_element(By.CSS_SELECTOR, "button[aria-label='Read more job description']")
         read_more_button.click()
