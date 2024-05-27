@@ -29,7 +29,7 @@ def get_job_links():
 
 def construct_job(driver, job_link):
     driver.get(job_link)
-    time.sleep(7)
+    time.sleep(1)
 
     soup = BeautifulSoup(driver.page_source, 'html.parser')
     try:
