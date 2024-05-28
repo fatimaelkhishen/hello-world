@@ -8,41 +8,54 @@ import pandas as pd
 
 def get_job_links():
     job_links = []
-    searching = True
     driver = webdriver.Chrome()
+
     try:
         url = "https://cummins.jobs/usa/jobs/"
         driver.get(url)
-
-        while searching:
+        
+        # Dismiss cookie banner if present
+        try:
+            cookie_banner = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, "cookie-consent__container")))
+            cookie_banner.find_element_by_css_selector("button").click()
+        except:
+            pass
+        
+        while True:
             try:
-                cookie_banner = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, "cookie-consent__container")))
-                cookie_banner.find_element_by_css_selector("button").click()
-            except:
-                pass
-            try:
+                # Click the "More" button
                 driver.execute_script("document.getElementById('button_moreJobs').click();")
-            except:
+                
+                # Wait for the additional jobs to load
+                WebDriverWait(driver, 40).until(EC.presence_of_element_located((By.ID, "direct_moreLessLinks_listingDiv")))
+                WebDriverWait(driver, 40).until(EC.presence_of_element_located((By.CLASS_NAME, "direct_joblisting")))
+                
+                # Parse the page source with BeautifulSoup
+                soup = BeautifulSoup(driver.page_source, 'html.parser')
+                job_cards = soup.find_all("li", class_="direct_joblisting")
+                for job_card in job_cards:
+                    link = job_card.find('a').get('href')
+                    job_links.append("https://cummins.jobs" + link)
+                
+            except Exception as e:
+                print(f"An error occurred: {str(e)}")
                 break
-            WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, "direct_joblisting")))
             
-            soup = BeautifulSoup(driver.page_source, 'html.parser')
-            job_cards = soup.find_all("li", class_="direct_joblisting")
-            for job_card in job_cards:
-                link = job_card.find('a').get('href')
-                job_links.append("https://cummins.jobs" + link)
-            more = soup.find("a",{ "id":"button_moreJobs", "style":"display: none;"})
-            if  more:
+            # Check if the "More" button is still present, if not, break the loop
+            more_button = driver.find_element(By.ID, "button_moreJobs")
+            if "display: none;" in more_button.get_attribute("style"):
                 break
-
-        return job_links
-
+        
     finally:
         driver.quit()
+    
+    return job_links
+
+
 
 def construct_job(driver, job_link):
     driver.get(job_link)
-    time.sleep(4)
+    WebDriverWait(driver, 40).until(EC.presence_of_element_located((By.ID, "direct_moreLessLinks_listingDiv")))
     soup = BeautifulSoup(driver.page_source, 'html.parser')
     try:
         title = soup.find('span', itemprop='title').text.strip()
@@ -72,11 +85,9 @@ def construct_job(driver, job_link):
     }
     return jobPosting
 
-driver = webdriver.Chrome()
-
 def save_to_excel(job_data):
     df = pd.DataFrame(job_data)
-    df.to_excel("jobs.xlsx", index=False)
+    df.to_excel("cummins    .xlsx", index=False)
 
 def main():
     job_links = get_job_links()
