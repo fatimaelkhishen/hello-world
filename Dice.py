@@ -1,6 +1,8 @@
 import pandas as pd
 from bs4 import BeautifulSoup
 from selenium import webdriver
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 import time
 import json
@@ -15,7 +17,10 @@ def get_job_links():
         url = f"https://www.dice.com/jobs?location=United%20States&latitude=37.09024&longitude=-95.712891&countryCode=US&locationPrecision=Country&radius=30&radiusUnit=mi&page={p}"
 
         driver.get(url)
-        time.sleep(3)
+        WebDriverWait(driver, 60).until(EC.visibility_of_element_located(
+            (By.CLASS_NAME, "ng-star-inserted")))
+        
+        time.sleep(2)
         soup = BeautifulSoup(driver.page_source, 'html.parser')
         job_cards = soup.find_all("div", class_="card search-card")
         for job_card in job_cards:
