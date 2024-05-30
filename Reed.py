@@ -19,9 +19,11 @@ def get_job_links():
         for job_card in job_cards:
             link = job_card.find('a').get('href')
             job_links.append("https://www.reed.co.uk"+link)
-        next_button = soup.find("li", class_="page-item disabled")
-        if not next_button:
-            break
+        next_button_parent = soup.find("li", class_="page-item disabled")
+        if next_button_parent:
+            next_button = next_button_parent.find('a', class_="page-link next")
+            if next_button:
+                break
     
         p += 1
     driver.quit()
