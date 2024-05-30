@@ -7,7 +7,7 @@ import time
 import pandas as pd
 
 def get_job_links():
-    job_links = []
+    job_links = set()
     searching = True
     driver = webdriver.Chrome()
     try:
@@ -30,7 +30,7 @@ def get_job_links():
             job_cards = soup.find_all("li", class_="direct_joblisting")
             for job_card in job_cards:
                 link = job_card.find('a').get('href')
-                job_links.append("https://pearson.jobs" + link)
+                job_links.add("https://pearson.jobs" + link)
             more = soup.find("a",{ "id":"button_moreJobs", "style":"display: none;"})
             if  more:
                 break
@@ -40,10 +40,9 @@ def get_job_links():
     finally:
         driver.quit()
 
-def construct_job( job_link):
-    driver = webdriver.Chrome()
+def construct_job(driver, job_link):
     driver.get(job_link)
-    time.sleep(5)
+    time.sleep(1)
     soup = BeautifulSoup(driver.page_source, 'html.parser')
     try:
         title = soup.find('span', itemprop='title').text.strip()
@@ -54,7 +53,7 @@ def construct_job( job_link):
     except:
         location = "NA"
     try:
-        description = soup.find('div', id_='direct_jobDescriptionText').text.strip()
+        description = soup.find('div', itemprop='description').text.strip()
     except:
         description = "NA"
     try:
@@ -73,18 +72,16 @@ def construct_job( job_link):
     }
     return jobPosting
 
-driver = webdriver.Chrome()
-
 def save_to_excel(job_data):
     df = pd.DataFrame(job_data)
-    df.to_excel("jobs.xlsx", index=False)
+    df.to_excel("Pearson.xlsx", index=False)
 
 def main():
     job_links = get_job_links()
     driver = webdriver.Chrome()
     job_data = []
     for link in job_links:
-        job_posting = construct_job( link)
+        job_posting = construct_job(driver, link)
         job_data.append(job_posting)
     driver.quit()
     save_to_excel(job_data)
