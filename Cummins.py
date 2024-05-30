@@ -7,7 +7,7 @@ import time
 import pandas as pd
 
 def get_job_links():
-    job_links = []
+    job_links = set()
     driver = webdriver.Chrome()
 
     try:
@@ -35,7 +35,7 @@ def get_job_links():
                 job_cards = soup.find_all("li", class_="direct_joblisting")
                 for job_card in job_cards:
                     link = job_card.find('a').get('href')
-                    job_links.append("https://cummins.jobs" + link)
+                    job_links.add("https://cummins.jobs" + link)
                 
             except Exception as e:
                 print(f"An error occurred: {str(e)}")
@@ -55,7 +55,7 @@ def get_job_links():
 
 def construct_job(driver, job_link):
     driver.get(job_link)
-    WebDriverWait(driver, 40).until(EC.presence_of_element_located((By.ID, "direct_moreLessLinks_listingDiv")))
+    # WebDriverWait(driver, 40).until(EC.presence_of_element_located((By.ID, "direct_moreLessLinks_listingDiv")))
     soup = BeautifulSoup(driver.page_source, 'html.parser')
     try:
         title = soup.find('span', itemprop='title').text.strip()
