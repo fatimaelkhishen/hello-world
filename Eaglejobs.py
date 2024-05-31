@@ -28,7 +28,7 @@ def get_job_links():
             WebDriverWait(driver, 10).until(lambda driver: curr_jobs_num != len(driver.find_elements(By.CLASS_NAME, "awsm-job-listing-item")))  # Add a sleep to allow new job listings to load
 
         soup = BeautifulSoup(driver.page_source, 'html.parser')
-        jobListings = soup.find_all(class_='awsm-job-listing-item')
+        jobListings = soup.find_all(class_='awsm-job-listing-item awsm-job-expired-item awsm-grid-item')
         for job in jobListings:
                 job_links.append(job.find('a')['href'])
     except Exception as e:
