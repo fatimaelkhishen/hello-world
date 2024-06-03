@@ -16,7 +16,8 @@ def get_job_links():
     while searching:
         url = f"https://www.idealist.org/en/jobs?page={page}&q=usa"
         driver.get(url)
-        time.sleep(2)
+        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, "/html/body/div/div/div[3]/div/div[2]")))
+        time.sleep(3)
         job_elements = driver.find_elements(By.XPATH, "//div[@data-qa-id='search-result']")
         if not job_elements:
             searching = False
