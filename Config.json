@@ -1,0 +1,29 @@
+{
+    "scraping": {
+        "status": "normal"
+    },
+    "cleaning": "normal",
+    "DBconfig": "creds.json",
+    "archived": {
+    },
+    "_maintenance": {
+    },
+    "jobHubs": [
+        "Cummins",
+        "Deloitte",
+        "Dice",
+        "Eaglejobs",
+        "Evalcommunity",
+        "Getwork",
+        "Idealist",
+        "Indevjobs",
+        "Mycareer",
+        "Pearson",
+        "Reed",
+        "Reliefweb",
+        "Sap",
+        "Snagajob",
+        "Theguardian",
+        "Workable"
+    ]
+}
