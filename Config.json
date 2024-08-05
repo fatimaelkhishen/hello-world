@@ -6,24 +6,25 @@
     "DBconfig": "creds.json",
     "archived": {
     },
-    "_maintenance": {
-    },
-    "jobHubs": [
+    "_maintenance": [
         "Cummins",
+        "Snagajob",
+        "Theguardian",
+        "Evalcommunity",
+        "Idealist"
+
+    ],
+    "jobHubs": [
         "Deloitte",
         "Dice",
         "Eaglejobs",
-        "Evalcommunity",
         "Getwork",
-        "Idealist",
         "Indevjobs",
         "Mycareer",
         "Pearson",
         "Reed",
         "Reliefweb",
         "Sap",
-        "Snagajob",
-        "Theguardian",
         "Workable"
     ]
 }
