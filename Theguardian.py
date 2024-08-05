@@ -71,7 +71,7 @@ def construct_job(driver, job_link):
     driver.get(job_link)
     soup = BeautifulSoup(driver.page_source, 'html.parser')
     try:
-        jobTitle = soup.find("h1", class_="mds-font-trafalgar").text
+        jobTitle = soup.find("h1", class_="mds-font-s6").text
     except:
         jobTitle = "NA"
     try:
