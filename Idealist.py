@@ -16,18 +16,19 @@ def get_job_links():
     while searching:
         url = f"https://www.idealist.org/en/jobs?page={page}&q=usa"
         driver.get(url)
-        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, "/html/body/div/div/div[3]/div/div[2]")))
         time.sleep(3)
-        job_elements = driver.find_elements(By.XPATH, "//div[@data-qa-id='search-result']")
+        job_elements = driver.find_elements(By.XPATH, "//a[contains(@class, 'sc-9gxixl-2')]")
         if not job_elements:
             searching = False
             continue
-        jobs = [ a.get_attribute('href')
-         for job_element in job_elements for a in job_element.find_elements(By.XPATH, ".//a[@data-qa-id='search-result-link']")]
+        for a in job_elements:
+            jobs = a.get_attribute('href')
+                    
+             
         if not jobs:
             searching = False
             continue
-        job_links.extend(jobs)
+        job_links.append(jobs)
         page += 1
     return job_links
 def listInfoToDict(UL):
