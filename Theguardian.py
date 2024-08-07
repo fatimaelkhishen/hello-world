@@ -28,7 +28,7 @@ def extract_json_objects(text, decoder=JSONDecoder()):
             pos = match + index
         except ValueError:
             pos = match + 1
-def get_job_links():
+def get_job_links(max_page=3):
     job_links = []
     searching = True
     page = 1
@@ -43,7 +43,7 @@ def get_job_links():
     except TimeoutException:
         pass  # Cookie consent dialog not found or already accepted
     
-    while searching:
+    while page < max_page:
         driver.get("https://jobs.theguardian.com/jobs/north-america/" + str(page))
         try:
             soup = BeautifulSoup(driver.page_source, 'html.parser')
@@ -75,13 +75,9 @@ def construct_job(driver, job_link):
     except:
         jobTitle = "NA"
     try:
-        job_description = soup.find(id="job-description").text
+        job_description = soup.find("div", class_="mds-prose").text
     except:
-        try:
-            job_description = soup.find(
-                class_="mds-edited-text mds-font-body-copy-bulk").text
-        except:
-            job_description = "NA"
+        job_description = "NA"
     try:
         Company_name = soup.find("dt", string="Employer").find_next("dd").text.strip()
     except:
@@ -172,7 +168,7 @@ def save_to_excel(job_data):
     df.to_excel("Theguardian.xlsx", index=False)
 
 def main():
-    job_links = get_job_links()
+    job_links = get_job_links(max_page=3)
     driver = webdriver.Chrome()
 
     job_data = []
