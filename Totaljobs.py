@@ -1,32 +1,3 @@
-import pandas as pd
-from bs4 import BeautifulSoup
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-import time
-import re
-
-
-def get_job_links():
-    job_links = []
-    p = 1
-
-    driver = webdriver.Chrome()
-    while True:
-        url = f"https://www.totaljobs.com/jobs/in-united-states?page={p}"
-        driver.get(url)
-        soup = BeautifulSoup(driver.page_source, 'html.parser')
-        job_cards = soup.find_all("article", class_="res-vxbpca")
-        for job_card in job_cards:
-            title = job_card.find("h2", class_="res-1tassqi")
-            link = title.find('a').get('href')
-            job_links.append("https://www.totaljobs.com"+link)
-        next_button = soup.find("button", {"aria-label": "Next"})
-        if next_button and "disabled" in next_button.attrs:
-            break
-    
-        p += 1
-    driver.quit()
-    return job_links
 import pandas as pd  
 from bs4 import BeautifulSoup  
 from selenium import webdriver  
@@ -44,7 +15,7 @@ def get_job_links(driver):
         while True:  
             url = f"https://www.totaljobs.com/jobs/in-united-states?page={p}"  
             driver.get(url)  
-            WebDriverWait(driver, 20).until(EC.presence_of_all_elements_located((By.CLASS_NAME, "res-1p8f8en")))  
+            WebDriverWait(driver, 10).until(EC.presence_of_all_elements_located((By.CLASS_NAME, "res-1p8f8en")))  
             soup = BeautifulSoup(driver.page_source, 'html.parser')  
             job_cards = soup.find_all("article", class_="res-1p8f8en")  
             if not job_cards:  
@@ -70,7 +41,7 @@ def get_job_links(driver):
 def construct_job(driver, job_link):  
     try:  
         driver.get(job_link)  
-        WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CLASS_NAME, 'job-ad-display-gro348')))  
+        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, 'job-ad-display-gro348')))  
         soup = BeautifulSoup(driver.page_source, 'html.parser')
   
         title = soup.find('span', class_='job-ad-display-29uigd').text.strip() if soup.find('span', class_='job-ad-display-29uigd') else "NA"
