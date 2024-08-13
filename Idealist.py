@@ -8,27 +8,37 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
-def get_job_links():
-    job_links = []
-    driver = webdriver.Chrome()
-    page = 1
-    searching = True
-    while searching:
-        url = f"https://www.idealist.org/en/jobs?page={page}&q=usa"
-        driver.get(url)
-        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, "/html/body/div/div/div[3]/div/div[2]")))
-        time.sleep(3)
-        job_elements = driver.find_elements(By.XPATH, "//div[@data-qa-id='search-result']")
-        if not job_elements:
-            searching = False
-            continue
-        jobs = [ a.get_attribute('href')
-         for job_element in job_elements for a in job_element.find_elements(By.XPATH, ".//a[@data-qa-id='search-result-link']")]
-        if not jobs:
-            searching = False
-            continue
-        job_links.extend(jobs)
-        page += 1
+def get_job_links():  
+    job_links = []  
+    driver = webdriver.Chrome()  
+    page = 1  
+    searching = True  
+    while searching:  
+        url = f"https://www.idealist.org/en/jobs?page={page}&q=usa"  
+        driver.get(url)  
+        time.sleep(3)  # Consider using WebDriverWait for better handling.  
+        
+        # Adjust the element selection to make it robust against page changes.  
+        job_elements = driver.find_elements(By.XPATH, "//a[contains(@class, 'sc-9gxixl-2')]")  
+        
+        if not job_elements:  
+            print(f"No more job listings found on page {page}. Ending search.")  
+            searching = False  
+            continue  
+            
+        for a in job_elements:  
+            jobs = a.get_attribute('href')  
+            if jobs:  
+                job_links.append(jobs)  
+        
+        # Check if any new links were added before going to the next page.  
+        if len(job_elements) == 0:  
+            print(f"No job elements found on page {page}. Ending search.")  
+            searching = False  
+        else:  
+            page += 1  # Only increment if job elements were found.  
+          
+    driver.quit()  # Ensure you close the driver if done.  
     return job_links
 def listInfoToDict(UL):
     out = {}
