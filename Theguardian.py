@@ -71,17 +71,13 @@ def construct_job(driver, job_link):
     driver.get(job_link)
     soup = BeautifulSoup(driver.page_source, 'html.parser')
     try:
-        jobTitle = soup.find("h1", class_="mds-font-trafalgar").text
+        jobTitle = soup.find("h1", class_="mds-font-s6").text
     except:
         jobTitle = "NA"
     try:
-        job_description = soup.find(id="job-description").text
+        job_description = soup.find("div", class_="mds-prose").text
     except:
-        try:
-            job_description = soup.find(
-                class_="mds-edited-text mds-font-body-copy-bulk").text
-        except:
-            job_description = "NA"
+        job_description = "NA"
     try:
         Company_name = soup.find("dt", string="Employer").find_next("dd").text.strip()
     except:
