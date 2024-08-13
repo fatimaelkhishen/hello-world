@@ -4,11 +4,11 @@
     },
     "cleaning": "normal",
     "DBconfig": "creds.json",
-    "archived": {
-    },
-    "_maintenance": [
-        "Cummins",
+    "archived": [
         "Snagajob"
+    ],
+    "_maintenance": [
+        "Cummins"
     ],
     "jobHubs": [
         "Deloitte",
