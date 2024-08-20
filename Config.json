@@ -4,11 +4,11 @@
     },
     "cleaning": "normal",
     "DBconfig": "creds.json",
-    "archived": {
-    },
+    "archived": [
+        "Snagajob:when testing it gives verify you are a human"
+    ],
     "_maintenance": [
-        "Cummins",
-        "Snagajob"
+        "Cummins"
     ],
     "jobHubs": [
         "Deloitte",
