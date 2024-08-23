@@ -8,7 +8,8 @@
         "Snagajob:when testing it gives verify you are a human"
     ],
     "_maintenance": [
-        "Cummins"
+        "Cummins",
+        "Workable"
     ],
     "jobHubs": [
         "Deloitte",
@@ -23,7 +24,6 @@
         "Pearson",
         "Reed",
         "Reliefweb",
-        "Sap",
-        "Workable"
+        "Sap"
     ]
 }
