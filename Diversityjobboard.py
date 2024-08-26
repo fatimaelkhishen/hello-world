@@ -9,52 +9,56 @@ from selenium.webdriver.support import expected_conditions as EC
 
 def get_job_links():  
     job_links = []  
-    
     driver = webdriver.Chrome()   
     driver.get("https://www.diversityjobboard.com/jobs")  
     time.sleep(5)   
     base_url = "https://www.diversityjobboard.com"  
     page_number = 1  
-    
+
     try:  
         while True:  
-                
+            print(f"Scraping page {page_number}...")   
+
             WebDriverWait(driver, 30).until(  
                 EC.presence_of_element_located((By.CSS_SELECTOR, ".job-listings-item"))  
             )  
             soup = BeautifulSoup(driver.page_source, 'html.parser')  
             listings = soup.find_all("div", class_="job-listings-item")  
 
-            
             if not listings:  
                 print("No job listings found on this page.")  
                 break  
-            
-              
+
             for listing in listings:  
                 try:  
                     job_link = listing.find("a")['href']  
                     if job_link:  
-                         
                         if job_link.startswith('/'):  
                             job_link = base_url + job_link  
                         job_links.append((job_link, page_number))    
-                        print(f"Found job link on page {page_number}: {job_link}") 
+                        print(f"Found job link on page {page_number}: {job_link}")  
                 except Exception as e:  
                     print(f"Error extracting job link: {e}")  
 
              
-            try:  
-                next_button = WebDriverWait(driver, 10).until(  
-                    EC.element_to_be_clickable((By.XPATH, "//a[@aria-label='Next' and not(@disabled)]"))  
-                )  
-                next_button.click()   
-                time.sleep(random.uniform(2, 5)) 
-                page_number += 1  
-                print(f"Going to next page {page_number}...")   
+            try:   
+                while True:    
+                    next_button = WebDriverWait(driver, 10).until(  
+                        EC.element_to_be_clickable((By.CSS_SELECTOR, "a.page-link[rel='next']"))  
+                    )  
+                    if next_button.is_displayed():  
+                        driver.execute_script("arguments[0].scrollIntoView();", next_button)  
+                        next_button.click()   
+                        time.sleep(random.uniform(2, 5))   
+                        page_number += 1  
+                        print(f"Going to next page {page_number}...")  
+                        break    
+                    else:  
+                        print("Next button is not displayed.")  
+                        break  
             except Exception as e:  
                 print("No next button found or an error occurred:", e)  
-                break    
+                break  
 
     except Exception as e:   
         print(f"An error occurred while getting job links: {e}")  
@@ -89,7 +93,6 @@ def construct_job(driver, job_link_page):
         "Website": "DiversityJobBoard"  
     }  
 
-  
     try:  
         title = soup.find("h1", class_="job-inner-title")  
         if title:  
@@ -104,7 +107,6 @@ def construct_job(driver, job_link_page):
     except Exception as e:  
         print(f"Error extracting description: {e}")  
 
-      
     try:  
         info_items = soup.findAll("a", class_='job-inner-info-item')  
         jobposting["SRC_Company"] = info_items[0].text.strip() if len(info_items) > 0 else "NA"  
@@ -113,7 +115,6 @@ def construct_job(driver, job_link_page):
     except Exception as e:  
         print(f"Error extracting company, job type, or location: {e}")  
 
-     
     try:  
         info_ = soup.findAll("span", class_='job-inner-info-item')  
         for item in info_:  
