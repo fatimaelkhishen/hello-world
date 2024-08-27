@@ -8,7 +8,6 @@
         "Snagajob:when testing it gives verify you are a human"
     ],
     "_maintenance": [
-        "Indevjobs",
         "Cummins"
     ],
     "jobHubs": [
@@ -16,6 +15,7 @@
         "Theguardian",
         "Dice",
         "Eaglejobs",
+        "Indevjobs",
         "Evalcommunity",
         "Getwork",
         "Idealist",
