@@ -1,9 +1,8 @@
 import pandas as pd
 from bs4 import BeautifulSoup
 from selenium import webdriver
-import re
 
-import json
+
 def get_job_links():
     job_links = []
     driver = webdriver.Chrome()
@@ -36,57 +35,46 @@ def get_job_links():
         page += 1
     driver.quit()
     return job_links
-import pandas as pd  
-from bs4 import BeautifulSoup  
-from selenium import webdriver  
-import json  
 
 def construct_job(driver, job_link):  
     driver.get(job_link)  
     soup = BeautifulSoup(driver.page_source, 'html.parser')  
 
-    jobTitle = "NA"  
-    companyName = "NA"  
-    years_of_experience = "NA"  
-    required_skill = "NA"  
-    jobDescription = "NA"  
-    location = "NA"  
-    deadline = "NA"  
-
+    
     try:  
         jobTitle = soup.find("h4", class_="inner-job").text.strip()  
     except Exception:  
-        pass  
+        jobTitle = "NA"  
 
     try:  
         companyName = soup.find("div", class_="job-short-desc").find("p").text.strip()  
-    except Exception:  
-        pass  
+    except Exception:
+        companyName = "NA"   
 
     try:  
         years_of_experience = soup.find("div", class_="job-short-desc").findAll("p")[2].text.strip()  
     except Exception:  
-        pass  
+        years_of_experience = "NA"  
 
     try:  
         required_skill = soup.find("div", class_="job-short-desc").findAll("p")[3].text.strip()  
     except Exception:  
-        pass  
+        required_skill = "NA"   
 
     try:  
         jobDescription = soup.find("div", class_="ijobs_listing_left_sidebar_wrapper").text.replace("\xa0", " ").replace('\n', " ").strip()  
     except Exception:  
-        pass  
+        jobDescription = "NA"
 
     try:  
         location = soup.find("div", class_="job-short-desc").findAll("p")[1].text.strip()  
     except Exception:  
-        pass  
+        location = "NA"
 
     try:  
         deadline = soup.find("div", class_="job-footer").text.split(":")[1].strip()  
     except Exception:  
-        pass  
+        deadline = "NA"  
 
     jobPosting = {  
         "SRC_Title": jobTitle,  
