@@ -5,7 +5,8 @@
     "cleaning": "normal",
     "DBconfig": "creds.json",
     "archived": [
-        "Snagajob:when testing it gives verify you are a human"
+        "Snagajob:when testing it gives verify you are a human",
+        "Jooble:when testing it gives verify you are a human"
     ],
     "_maintenance": [
         "Cummins"
