@@ -1,0 +1,114 @@
+from bs4 import BeautifulSoup  
+from selenium.webdriver.common.by import By  
+from selenium.webdriver.support.ui import WebDriverWait  
+from selenium.webdriver.support import expected_conditions as EC 
+from selenium.common.exceptions import NoSuchElementException  
+from selenium import webdriver  
+import time  
+import random  
+import pandas as pd  
+
+def get_job_links(driver):  
+    job_links = []   
+    driver.get("https://jobs.ajg.com/ajg-home/jobs")  
+    time.sleep(5)   
+    base_url = "https://jobs.ajg.com"  
+
+    try:  
+         
+        try:  
+            cookie_consent_button = driver.find_element(By.XPATH, '//*[@id="CookieReportsBanner"]/div[1]/div[2]/a[1]')  
+            cookie_consent_button.click()  
+        except NoSuchElementException:  
+            print("Cookie consent button not found, continuing...")  
+
+        while True:  
+             
+            WebDriverWait(driver, 30).until(  
+                EC.presence_of_element_located((By.CSS_SELECTOR, ".mat-expansion-panel"))  
+            )  
+            soup = BeautifulSoup(driver.page_source, 'html.parser')  
+            listings = soup.find_all(class_="mat-expansion-panel")  
+
+             
+            for listing in listings:  
+                job_link_tag = listing.find('a')   
+                if job_link_tag and 'href' in job_link_tag.attrs:  
+                    job_link = base_url + job_link_tag['href']  
+                    job_links.append(job_link)  
+                      
+
+              
+            try:   
+                next_button = WebDriverWait(driver, 10).until(  
+                    EC.visibility_of_element_located((By.XPATH, '//button[@aria-label="Next Page of Job Search Results"]'))  
+                )  
+
+                if next_button.is_displayed():    
+                    driver.execute_script("arguments[0].scrollIntoView();", next_button)  
+                    driver.execute_script("arguments[0].click();", next_button)  
+                    time.sleep(random.uniform(2, 5))   
+                else:    
+                    print("No more pages to navigate.")  
+                    break  
+            except:
+                break   
+            
+
+    finally:  
+        driver.quit()    
+    return job_links  
+
+def construct_job(driver, job_link):   
+    driver.get(job_link)  
+    time.sleep(5)   
+    soup = BeautifulSoup(driver.page_source, 'html.parser')  
+
+    try:  
+        title = soup.find('h1', {'itemprop': 'title'}).text.strip() 
+    except:
+        title = "NA"
+    try:
+        location = soup.find('li', id="header-locations").text.strip()  
+    except:
+        location = "NA"
+    try:
+        job_category = soup.find('li', id='header-categories').text.strip()  
+    except:
+        job_category = "NA"
+    try:
+        job_type = soup.find('li', id="header-tags3").text.strip()
+    except:
+        job_type = "NA"
+    try:
+        desc = soup.find('article', id='description-body').text.strip() 
+    except:
+        desc = "NA"
+
+        jobPosting = {  
+            'SRC_Title': title,  
+            'SRC_Country': location,  
+            'SRC_Category': job_category,  
+            'SRC_Type': job_type,  
+            'Website': 'Gallagher',  
+            'SRC_Description': desc  
+        }  
+        return jobPosting  
+
+def save_to_excel(job_data):  
+    df = pd.DataFrame(job_data)  
+    df.to_excel("Gallagher.xlsx", index=False)  
+
+def main():  
+    driver = webdriver.Chrome()  
+    job_links = get_job_links(driver)  
+    job_data = []  
+    for link in job_links:  
+        job_posting = construct_job(driver, link)  
+        if job_posting:  
+            job_data.append(job_posting)  
+    driver.quit()  
+    save_to_excel(job_data)  
+
+if __name__ == "__main__":  
+    main()
