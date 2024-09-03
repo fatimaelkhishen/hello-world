@@ -13,11 +13,13 @@ def get_job_links(driver):
 
     try:  
         while True:  
-            url = f"https://www.totaljobs.com/jobs/in-united-states?page={p}"  
+            url = f"https://www.totaljobs.com/jobs/in-united-states?radius=10&searchOrigin=Homepage_top-search&page={p}"  
             driver.get(url)  
             WebDriverWait(driver, 10).until(EC.presence_of_all_elements_located((By.CLASS_NAME, "res-1p8f8en")))  
             soup = BeautifulSoup(driver.page_source, 'html.parser')  
             job_cards = soup.find_all("article", class_="res-1p8f8en")  
+            print(f"Page {p} - Found {len(job_cards)} job cards.")  # Debugging output  
+
             if not job_cards:  
                 break  
 
@@ -30,27 +32,48 @@ def get_job_links(driver):
             # Navigate to the next page  
             next_button = soup.find("button", {"aria-label": "Next"})  
             if next_button and "disabled" in next_button.attrs:  
+                print("No more pages to navigate.")  # Debugging output  
                 break  
 
             p += 1   
             time.sleep(random.uniform(2, 5))  # Randomized sleep time  
     except Exception as e:  
         print(f"An error occurred while getting job links: {e}")  
-    return job_links  
+    return job_links
 
 def construct_job(driver, job_link):  
     try:  
         driver.get(job_link)  
         WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, 'job-ad-display-gro348')))  
         soup = BeautifulSoup(driver.page_source, 'html.parser')
-  
-        title = soup.find('span', class_='job-ad-display-29uigd').text.strip() if soup.find('span', class_='job-ad-display-29uigd') else "NA"
-        company = (soup.find('li', class_='at-listing__list-icons_company-name job-ad-display-62o8fr').text.strip() if soup.find('li', class_='at-listing__list-icons_company-name job-ad-display-62o8fr') else "NA")  
-        location = (soup.find('li', class_='at-listing__list-icons_location map-trigger job-ad-display-62o8fr').text.strip() if soup.find('li', class_='at-listing__list-icons_location map-trigger job-ad-display-62o8fr') else "NA")  
-        dateposted = (soup.find('li', class_='at-listing__list-icons_date job-ad-display-62o8fr').text.strip() if soup.find('li', class_='at-listing__list-icons_date job-ad-display-62o8fr') else "NA")  
-        salary = (soup.find("li", class_="at-listing__list-icons_salary job-ad-display-1dus89x").text.strip() if soup.find("li", class_="at-listing__list-icons_salary job-ad-display-1dus89x") else "NA")  
-        job_type = (soup.find("li", class_="at-listing__list-icons_work-type job-ad-display-62o8fr").text.strip() if soup.find("li", class_="at-listing__list-icons_work-type job-ad-display-62o8fr") else "NA")  
-        desc = (soup.find('div', class_='at-section-text-jobDescription-content listingContentBrandingColor job-ad-display-1b1is8w').text.strip() if soup.find('div', class_='at-section-text-jobDescription-content listingContentBrandingColor job-ad-display-1b1is8w') else "NA")  
+        try:
+           title = soup.find('h1', class_='job-ad-display-29uigd').text.strip()
+        except:
+           title = "NA"
+        try: 
+           company = soup.find('li', class_='at-listing__list-icons_company-name job-ad-display-62o8fr').text.strip()
+        except:
+           company = "NA"
+        try:             
+           location = soup.find('li', class_='at-listing__list-icons_location map-trigger job-ad-display-62o8fr').text.strip()
+        except:
+           location = "NA"
+        try:
+           dateposted = soup.find('li', class_='at-listing__list-icons_date job-ad-display-62o8fr').text.strip() 
+        except:
+           dateposted = "NA"
+        try:   
+           salary = soup.find("li", class_="at-listing__list-icons_salary job-ad-display-1dus89x").text.strip()
+        except:
+           salary = "NA"  
+        try:
+           job_type = soup.find("li", class_="at-listing__list-icons_work-type job-ad-display-62o8fr").text.strip() 
+        except:
+           job_type = "NA"
+        try:
+           desc = soup.find('div', class_='at-section-text-jobDescription-content listingContentBrandingColor job-ad-display-1b1is8w').text.strip() 
+        except:
+           desc = "NA"
 
         return {  
             'SRC_Title': title,  
