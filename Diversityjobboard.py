@@ -1,6 +1,7 @@
 import pandas as pd  
 from bs4 import BeautifulSoup  
 from selenium import webdriver  
+import re
 import time  
 import json
 import random  
@@ -71,49 +72,64 @@ def construct_job(driver, job_link_page):
     
     soup = BeautifulSoup(driver.page_source, 'html.parser')  
     
+
+
+    try:  
+        title = soup.find("h1", class_="job-inner-title").text.strip() 
+   
+    except Exception:  
+        title = 'NA'  
+
+    try:  
+        description = soup.find(id='quill-container-with-job-details').text.replace('\n', '').strip()    
+
+    except Exception:  
+        description = 'NA' 
+          
+    try:  
+       info_items = soup.findAll("a", class_='job-inner-info-item')  
+       Company= info_items[0].text.strip()
+    except Exception:  
+        Company = 'NA'
+        
+    try:  
+       info_items = soup.findAll("a", class_='job-inner-info-item')  
+       job_type= info_items[1].text.strip() 
+    except Exception:  
+        job_type = 'NA'
+    
+    try:  
+       info_items = soup.findAll("a", class_='job-inner-info-item')
+       Country = info_items[2].text.strip()
+    except Exception:  
+        Country = 'NA'
+
+    try:
+        script_tag = soup.findAll("script", type="application/ld+json")[1]
+        if script_tag:
+            # Use regular expression to extract JSON content from the script tag
+            json_text = re.search(r'(?<=<script type="application/ld\+json">)(.*?)(?=</script>)', str(script_tag), re.DOTALL)
+            if json_text:
+                json_data = json_text.group(0).strip()
+                try:
+                    job_data = json.loads(json_data)
+                    datePosted = job_data.get('datePosted', 'NA')
+                    datePosted = datePosted.split('T')[0] if datePosted != 'NA' else 'NA'
+                except:
+                    pass
+    except Exception:
+        datePosted = 'NA'
+                
     jobposting = {  
-        "SRC_Title": "NA",  
-        "SRC_Description": "NA",  
-        "SRC_Country": "NA",  
-        "job_type": "NA",  
-        "SRC_Company": "NA",  
-        "Link": job_link,   
-        "Salary": "NA",  
-        "date": "NA",   
+        "SRC_Title": title,  
+        "SRC_Description": description,  
+        "SRC_Country": Country,  
+        "job_type": job_type,  
+        "SRC_Company": Company,  
+        "Link": job_link, 
+        "date": datePosted,   
         "Website": "DiversityJobBoard"  
     }  
-
-    try:  
-        title = soup.find("h1", class_="job-inner-title")  
-        if title:  
-            jobposting["SRC_Title"] = title.text.strip()  
-    except Exception:  
-        pass  
-
-    try:  
-        description = soup.find(id='quill-container-with-job-details')  
-        if description:  
-            jobposting["SRC_Description"] = description.text.replace('\n', '').strip()  
-    except Exception:  
-        pass   
-
-    try:  
-        info_items = soup.findAll("a", class_='job-inner-info-item')  
-        jobposting["SRC_Company"] = info_items[0].text.strip() if len(info_items) > 0 else "NA"  
-        jobposting["job_type"] = info_items[1].text.strip() if len(info_items) > 1 else "NA"  
-        jobposting["SRC_Country"] = info_items[2].text.strip() if len(info_items) > 2 else "NA"  
-    except Exception:  
-        pass   
-
-    try:  
-        json_script = soup.find("script", {"type": "application/ld+json"})
-        if json_script:
-            job_json = json.loads(json_script.string)
-            date_posted = job_json.get("datePosted", "NA")
-            if date_posted != "NA":
-                jobposting["date"] = date_posted.split("T")[0] 
-    except Exception:  
-        pass   
 
     return jobposting  
 
@@ -135,7 +151,7 @@ def main():
         if job_posting:  
             job_data.append(job_posting)  
 
-    driver.quit()  
+    driver.quit() 
     save_to_excel(job_data)  
 
 if __name__ == "__main__":  
