@@ -69,7 +69,7 @@ def construct_job(driver, job_link):
         salary = "NA"
         
     try:
-        description = soup.find('div', class_='awsm-job-entry-content entry-content').text
+        description = soup.find('div', id='formToggleSheet').text
     except:
         description = "NA"
     try:
