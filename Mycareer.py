@@ -35,7 +35,7 @@ def construct_job(driver, job_link):
         pass  # Handle the case where the "Read more" button is not found
     soup = BeautifulSoup(driver.page_source, 'html.parser')
     try:
-        title = soup.find('h1', class_='mds-font-trafalgar').text.strip()
+        title = soup.find('h1', class_='mds-font-s6').text.strip()
     except:
         title = "NA"
     try:
@@ -77,7 +77,7 @@ def construct_job(driver, job_link):
     except:
         hours = "NA"
     try:
-        desc = soup.find('div', class_='mds-edited-text mds-font-body-copy-bulk').text.strip()
+        desc = soup.find('div', class_='mds-surface__inner').text.strip()
     except:
         desc = "NA"
 

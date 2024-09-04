@@ -4,28 +4,29 @@
     },
     "cleaning": "normal",
     "DBconfig": "creds.json",
-    "archived": {
-    },
+    "archived": [
+        "Snagajob:when testing it gives verify you are a human",
+        "Jooble:when testing it gives verify you are a human"
+    ],
     "_maintenance": [
         "Cummins",
-        "Snagajob",
-        "Theguardian",
-        "Evalcommunity",
-        "Idealist"
-
+        "Workable"
     ],
     "jobHubs": [
         "Deloitte",
+        "Theguardian",
         "Dice",
         "Diversityjobboard",
+        "Dejobs",
         "Eaglejobs",
-        "Getwork",
         "Indevjobs",
+        "Evalcommunity",
+        "Getwork",
+        "Idealist",
         "Mycareer",
         "Pearson",
         "Reed",
         "Reliefweb",
-        "Sap",
-        "Workable"
+        "Sap"
     ]
 }
