@@ -2,6 +2,7 @@ import pandas as pd
 from bs4 import BeautifulSoup  
 from selenium import webdriver  
 import time  
+import json
 import random  
 from selenium.webdriver.common.by import By  
 from selenium.webdriver.support.ui import WebDriverWait  
@@ -78,7 +79,7 @@ def construct_job(driver, job_link_page):
         "SRC_Company": "NA",  
         "Link": job_link,   
         "Salary": "NA",  
-        "Date Posted": "NA",   
+        "date": "NA",   
         "Website": "DiversityJobBoard"  
     }  
 
@@ -105,13 +106,12 @@ def construct_job(driver, job_link_page):
         pass   
 
     try:  
-        info_ = soup.findAll("span", class_='job-inner-info-item')  
-        for item in info_:  
-            text = item.text.strip()  
-            if "$" in text or "per year" in text:  
-                jobposting["Salary"] = text  
-            elif "ago" in text or any(char.isdigit() for char in text):  
-                jobposting["Date Posted"] = text  
+        json_script = soup.find("script", {"type": "application/ld+json"})
+        if json_script:
+            job_json = json.loads(json_script.string)
+            date_posted = job_json.get("datePosted", "NA")
+            if date_posted != "NA":
+                jobposting["date"] = date_posted.split("T")[0] 
     except Exception:  
         pass   
 
