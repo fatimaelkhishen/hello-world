@@ -21,8 +21,7 @@ def get_job_links():
             cookie_consent_button = WebDriverWait(driver, 10).until(  
                 EC.element_to_be_clickable((By.ID, 'onetrust-accept-btn-handler'))  
             )  
-            cookie_consent_button.click()  
-            print("Clicked on cookie consent button.")  
+            cookie_consent_button.click()   
         except Exception as e:  
             print(f"Cookie consent button not found or already accepted: {e}")  
 
@@ -81,7 +80,7 @@ def construct_job(driver, job_link):
     soup = BeautifulSoup(driver.page_source, 'html.parser')  
 
     try:  
-        jobTitle = soup.find("p", class_="c-job-listing-card__header").text.strip()  
+        jobTitle = soup.findAll("div", class_="c-job-details-mobile__header").find("p").text.strip() 
     except Exception:  
         jobTitle = "NA"        
 
@@ -115,15 +114,10 @@ def construct_job(driver, job_link):
         Date_posted = "NA"  
 
      
-    try:  
-        jobDescription = soup.find("section", class_="c-job-details-mobile__description").text.strip() 
-    except Exception:  
-        jobDescription = "NA"
 
     jobPosting = {  
         "SRC_Title": jobTitle,  
-        "SRC_Company": companyName,   
-        "SRC_Description": jobDescription,  
+        "SRC_Company": companyName,    
         "SRC_Country": Location,    
         "Date_posted": Date_posted,  
         "SRC_Salary": Salary,  
