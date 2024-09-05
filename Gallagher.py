@@ -8,67 +8,55 @@ import time
 import random  
 import pandas as pd  
 
-def get_job_links(driver):  
+def get_job_links():  
     job_links = []   
-    driver.get("https://jobs.ajg.com/ajg-home/jobs")  
-    time.sleep(5)  
-    base_url = "https://jobs.ajg.com"  
+    driver = webdriver.Chrome()
+    base_url = "https://jobs.ajg.com"
+    p = 1
+    searching = True
 
     try:  
-        try:  
-            cookie_consent_button = driver.find_element(By.XPATH, '//*[@id="CookieReportsBanner"]/div[1]/div[2]/a[1]')  
-            cookie_consent_button.click()  
-        except NoSuchElementException:  
-            print("Cookie consent button not found, continuing...")  
+        while searching:
+            # Construct the URL for the current page
+            url = f"{base_url}/ajg-home/jobs?page={p}"
+            driver.get(url)
+            time.sleep(5)  # Allow time for page to load
 
-        while True:  
-            # Adjust the wait time if needed  
+            # Accept cookies if the button is present
+            try:  
+                cookie_consent_button = driver.find_element(By.XPATH, '//*[@id="CookieReportsBanner"]/div[1]/div[2]/a[1]')  
+                cookie_consent_button.click()  
+            except NoSuchElementException:  
+                print("Cookie consent button not found, continuing...")  
+
             try:  
                 WebDriverWait(driver, 60).until(  # Increased wait time to 60 seconds  
                     EC.presence_of_element_located((By.CSS_SELECTOR, ".mat-expansion-panel"))  
                 )  
             except TimeoutException:  
-                print("Timed out waiting for the element to be present.")  
-                break  # Exit the loop if we can't find the panel  
+                print("Timeout waiting for elements to load.")
+                break 
 
             soup = BeautifulSoup(driver.page_source, 'html.parser')  
             listings = soup.find_all(class_="mat-expansion-panel")  
-
-            # Check if we found any listings on this page  
-            if not listings:  
-                print("No job listings found on this page.")  
-                break  # Exit if no listings are found  
+     
+            if not listings: 
+                print("No listings found on page", p)
+                break  
 
             for listing in listings:  
                 job_link_tag = listing.find('a')   
                 if job_link_tag and 'href' in job_link_tag.attrs:  
                     job_link = base_url + job_link_tag['href']  
                     job_links.append(job_link)  
+             
+            # Increment the page number for the next iteration
+            p += 1
 
-            # Print the job links found on the current page  
-            print(f"Found {len(listings)} job links on this page: {job_links[-len(listings):]}")  # Print the newly found links  
+    finally:
+        driver.quit()  # Ensure the driver is closed properly
 
-            try:   
-                next_button = WebDriverWait(driver, 10).until(  
-                    EC.visibility_of_element_located((By.XPATH, '//button[@aria-label="Next Page of Job Search Results"]'))  
-                )  
-
-                # Check if next button is enabled or not  
-                if next_button.is_displayed() and "disabled" not in next_button.get_attribute("class"):    
-                    driver.execute_script("arguments[0].scrollIntoView();", next_button)  
-                    driver.execute_script("arguments[0].click();", next_button)  
-                    time.sleep(random.uniform(2, 5))   
-                else:    
-                    print("No more pages to navigate.")  
-                    break  
-            except Exception as e:  
-                print(f"Exception occurred while navigating pages: {e}")  
-                break   
-
-    finally:  
-        driver.quit()    
-    return job_links  
-
+    return job_links
 def construct_job(driver, job_link):   
     driver.get(job_link)  
     time.sleep(5)   
@@ -110,16 +98,17 @@ def save_to_excel(job_data):
     df = pd.DataFrame(job_data)  
     df.to_excel("Gallagher.xlsx", index=False)  
 
-def main():  
-    driver = webdriver.Chrome()  
-    job_links = get_job_links(driver)  
-    job_data = []  
-    for link in job_links:  
-        job_posting = construct_job(driver, link)  
-        if job_posting:  
-            job_data.append(job_posting)  
-    driver.quit()  
-    save_to_excel(job_data)  
+def main():
+    job_links = get_job_links()
+    driver = webdriver.Chrome()
+    job_data = []
+    for link in job_links:
+        job_posting = construct_job(driver, link)
+        job_data.append(job_posting)
+    driver.quit()
+    save_to_excel(job_data) 
+        
+
 
 if __name__ == "__main__":  
     main()
