@@ -64,7 +64,7 @@ def construct_job(driver, job_link):
     listings = soup.find_all(class_="mat-expansion-panel")    
 
     try:  
-        title = soup.find('span', {'itemprop': 'title'}).text.strip() 
+        title = soup.find('h1', {'itemprop': 'title'}).text.strip() 
     except:
         title = "NA"
     try:
