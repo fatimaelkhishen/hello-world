@@ -6,6 +6,8 @@ from selenium.common.exceptions import NoSuchElementException, TimeoutException
 from selenium import webdriver  
 import time  
 import pandas as pd  
+import re  
+from datetime import datetime, timedelta  
 
 def get_job_links():  
     job_links = []  
@@ -16,9 +18,9 @@ def get_job_links():
     p = 1    
     searching = True  
     try:    
-        while searching:   
+        while searching: 
             url = f"{base_url}/us/en/search-jobs/?s=date&pg={p}&t=&loc=United+States&rid=E8B32C77-F7A9-4344-8EC4-2C7CF5315ED6&range=25"  
-            driver.get(url)  # Load the new page  
+            driver.get(url)    
             time.sleep(5)  
             try:  
                 cookie_consent_button = driver.find_element(By.XPATH, "//button[@id='onetrust-accept-btn-handler']")  
@@ -46,20 +48,35 @@ def get_job_links():
                 if job_link_tag and 'href' in job_link_tag.attrs:  
                     job_link = base_url + job_link_tag['href']  
                     job_links.append(job_link)  
- 
+   
             p += 1  
 
     finally:  
         driver.quit()  
 
     return job_links  
+def transform_date(date_string):  
+    if "day" in date_string:  
+        days_ago = int(re.search(r'(\d+)', date_string).group(1))  
+        return (datetime.now() - timedelta(days=days_ago)).strftime('%Y-%m-%d')  
+    elif "month" in date_string:  
+        return (datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d')   
+    elif "year" in date_string:  
+        return (datetime.now() - timedelta(days=365)).strftime('%Y-%m-%d')    
+    else:  
+         
+        try:  
+            parsed_date = datetime.strptime(date_string, '%B %d, %Y')  
+            return parsed_date.strftime('%Y-%m-%d')  
+        except ValueError:  
+            return "NA"  
 
 def construct_job(driver, job_link):  
     driver.get(job_link)  
     time.sleep(5)  
     soup = BeautifulSoup(driver.page_source, 'html.parser')   
 
-    # Extract job details with error handling  
+      
     try:  
         jobTitle = soup.find("div", class_="c-job-details-mobile__header").find("p").text.strip()   
     except Exception:  
@@ -87,6 +104,7 @@ def construct_job(driver, job_link):
 
     try:  
         Date_posted = soup.find("div", class_="employer-date-container").find_all("p")[1].text.strip()    
+        Date_posted = transform_date(Date_posted)  
     except Exception:  
         Date_posted = "NA"  
 
@@ -101,8 +119,7 @@ def construct_job(driver, job_link):
         "Website": "LHH"  
     }  
 
-    return jobPosting  
-
+    return jobPosting
 def save_to_excel(job_data):  
     df = pd.DataFrame(job_data)  
     df.to_excel("LHH.xlsx", index=False)  
