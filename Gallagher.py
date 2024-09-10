@@ -18,7 +18,7 @@ def get_job_links():
     try:  
         while searching:
             # Construct the URL for the current page
-            url = f"{base_url}/ajg-home/jobs?page={p}"
+            url = f"{base_url}/ajg-home/jobs?location=united%20states&stretch=10&stretchUnit=MILES&page={p}"
             driver.get(url)
             time.sleep(5)  # Allow time for page to load
 
@@ -68,11 +68,11 @@ def construct_job(driver, job_link):
     except:
         title = "NA"
     try:
-        location = soup.find('span',class_="label-value location").text.strip()  
+        location = soup.find('li', id="header-locations").text.strip()  
     except:
         location = "NA"
     try:
-        job_category = soup.find('span', class_='categories label-value').text.strip()  
+        job_category = soup.find('li', id='header-categories').text.strip()  
     except:
         job_category = "NA"
     try:
