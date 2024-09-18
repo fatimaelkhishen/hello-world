@@ -25,14 +25,12 @@ def get_job_links(max_pages=10):
                     EC.presence_of_element_located((By.CLASS_NAME, "sc-14nyru2-2"))  
                 )  
             except TimeoutException:  
-                print(f"Timeout while waiting for page {p} to load. Exiting.")  
                 break  
 
             soup = BeautifulSoup(driver.page_source, 'html.parser')  
             listings = soup.find_all("div", class_="sc-14nyru2-2")  
 
             if not listings:   
-                print("No listings found; exiting.")  
                 break  
 
             for listing in listings:  
@@ -52,48 +50,105 @@ def construct_job(driver, job_link):
     driver.get(job_link)  
     soup = BeautifulSoup(driver.page_source, 'html.parser')  
 
+    # Start data extraction  
+    jobPosting = {}  
+
+    # Extracting Job Title  
     try:  
-        title = soup.find('h1', class_="sc-3znpb9-4 gHEvIB").text.strip()  
+        title_tag = soup.find("h1", class_="sc-3znpb9-4 gHEvIB")  
+        job_title = title_tag.text.strip() if title_tag else "NA"  
+    except Exception as e:  
+        job_title = "NA"  
+        print(f"Error extracting job title: {e}")  
+
+    # Extracting Posting Date  
+    try:  
+        posting_date_tag = soup.find("p", class_="sc-3znpb9-12 hFMoxy")  
+        posting_date = posting_date_tag.text.strip() if posting_date_tag else "NA"  
+    except Exception as e:  
+        posting_date = "NA"  
+        print(f"Error extracting posting date: {e}")  
+
+    # Extracting Salary  
+    try:  
+        salary_tag = soup.find("li", id=lambda x: x and x.startswith('salartRange-'))  
+        salary = salary_tag.text.strip() if salary_tag else "NA"  
+    except Exception as e:  
+        salary = "NA"  
+        print(f"Error extracting salary: {e}")  
+
+    # Extracting Remote Work Level  
+    try:  
+        remote_work_level_tag = soup.find("h5", text="Remote Work Level:")  
+        remote_work_level = remote_work_level_tag.find_next("p").text.strip() if remote_work_level_tag else "NA"  
     except:  
-        title = "NA"  
-        
-    # Extract job type  
+        remote_work_level = "NA"  
+    
+    # Extracting Company  
     try:  
-        job_type_elem = soup.find('li', class_='sc-x3l9np-2')  
-        job_type = None  
-        if job_type_elem:  
-            job_type_value = job_type_elem.find('p', class_='sc-x3l9np-4')  
-            if job_type_value:  
-                job_type = job_type_value.text.strip()  
+        company_tag = soup.find("h5", text="Company:")  
+        company = company_tag.find_next("p").text.strip() if company_tag else "NA"  
+    except:  
+        company = "NA"  
+
+    # Extracting Job Type  
+    try:  
+        job_type_tag = soup.find("h5", text="Job Type:")  
+        job_type = job_type_tag.find_next("p").text.strip() if job_type_tag else "NA"  
     except:  
         job_type = "NA"  
-        
+
+    # Extracting Job Schedule  
     try:  
-        datePosted = soup.find('span', class_="sc-3znpb9-18 kKHHkJ").text.strip()  
+        job_schedule_tag = soup.find("h5", text="Job Schedule:")  
+        job_schedule = job_schedule_tag.find_next("p").text.strip() if job_schedule_tag else "NA"  
     except:  
-        datePosted = "NA"  
-        
+        job_schedule = "NA"  
+
+    # Extracting Career Level  
     try:  
-        location = soup.find('div', class_="sc-x3l9np-14 kDfsCI").text.strip()  
+        career_level_tag = soup.find("h5", text="Career Level:")  
+        career_level = career_level_tag.find_next("p").text.strip() if career_level_tag else "NA"  
     except:  
-        location = "NA"  
-        
+        career_level = "NA"  
+
+    # Extracting Travel Required  
+    try:  
+        travel_required_tag = soup.find("h5", text="Travel Required:")  
+        travel_required = travel_required_tag.find_next("p").text.strip() if travel_required_tag else "NA"  
+    except:  
+        travel_required = "NA"  
+
+    # Extracting Categories  
+    try:  
+        categories_tag = soup.find("h5", text="Categories:")  
+        categories = categories_tag.find_next("p").text.strip() if categories_tag else "NA"  
+    except:  
+        categories = "NA"  
+
+    # Compiling all information into a dictionary  
     jobPosting = {  
-        'SRC_Title': title,  
-        'SRC_Country': location,  
-        'Posting_Date': datePosted,  
+        'Job_Title': job_title,  
+        'Posting_Date': posting_date,  
+        'Salary': salary,  
+        'Remote_Work_Level': remote_work_level,  
+        'Company': company,  
         'Job_Type': job_type,  
+        'Job_Schedule': job_schedule,  
+        'Career_Level': career_level,  
+        'Travel_Required': travel_required,   
+        'Categories': categories,  
         'Link': job_link  
     }  
-    
+
     return jobPosting  
 
 def save_to_excel(job_data):  
     df = pd.DataFrame(job_data)  
-    df.to_excel("flex.xlsx", index=False)  
+    df.to_excel("flexjobs.xlsx", index=False)  
 
 def main():  
-    job_links = get_job_links()  # Changed this to match the correct function name  
+    job_links = get_job_links()  
     driver = webdriver.Chrome()  
     job_data = []  
     
